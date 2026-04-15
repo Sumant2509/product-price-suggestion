@@ -1,0 +1,791 @@
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    return '''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>📱 Phone Recommendation AI - Find Your Perfect Phone</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+            }
+
+            header {
+                text-align: center;
+                color: white;
+                margin-bottom: 40px;
+                animation: slideDown 0.5s ease-out;
+            }
+
+            header h1 {
+                font-size: 3em;
+                margin-bottom: 10px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+
+            header p {
+                font-size: 1.2em;
+                opacity: 0.9;
+            }
+
+            .main-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+                margin-bottom: 30px;
+            }
+
+            .card {
+                background: white;
+                border-radius: 15px;
+                padding: 30px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                animation: fadeIn 0.6s ease-out;
+            }
+
+            .card h2 {
+                color: #667eea;
+                margin-bottom: 20px;
+                font-size: 1.5em;
+            }
+
+            .input-group {
+                margin-bottom: 20px;
+            }
+
+            .input-group label {
+                display: block;
+                margin-bottom: 8px;
+                font-weight: 600;
+                color: #333;
+            }
+
+            .input-group input,
+            .input-group select {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid #e0e0e0;
+                border-radius: 8px;
+                font-size: 1em;
+                transition: border-color 0.3s;
+            }
+
+            .input-group input:focus,
+            .input-group select:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            }
+
+            .button-group {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-top: 20px;
+            }
+
+            button {
+                padding: 12px 20px;
+                border: none;
+                border-radius: 8px;
+                font-size: 1em;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .btn-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            }
+
+            .btn-secondary {
+                background: #f0f0f0;
+                color: #333;
+            }
+
+            .btn-secondary:hover {
+                background: #e0e0e0;
+            }
+
+            .phone-card {
+                background: #f9f9f9;
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 15px;
+                border-left: 4px solid #667eea;
+                transition: transform 0.3s, box-shadow 0.3s;
+            }
+
+            .phone-card:hover {
+                transform: translateX(5px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+            .phone-name {
+                font-size: 1.2em;
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 8px;
+            }
+
+            .phone-brand {
+                color: #667eea;
+                font-weight: 600;
+                margin-bottom: 5px;
+            }
+
+            .phone-specs {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-top: 10px;
+                font-size: 0.9em;
+            }
+
+            .spec {
+                display: flex;
+                align-items: center;
+                color: #555;
+            }
+
+            .spec-icon {
+                margin-right: 5px;
+                font-size: 1.1em;
+            }
+
+            .price {
+                font-size: 1.3em;
+                color: #27ae60;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+
+            .rating {
+                color: #f39c12;
+                font-weight: 600;
+            }
+
+            .profiles-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                margin-top: 20px;
+            }
+
+            .profile-btn {
+                padding: 15px;
+                border: 2px solid #e0e0e0;
+                background: white;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.3s;
+                text-align: left;
+            }
+
+            .profile-btn:hover {
+                border-color: #667eea;
+                background: #f0f7ff;
+            }
+
+            .profile-name {
+                font-weight: 600;
+                color: #333;
+                margin-bottom: 5px;
+            }
+
+            .profile-desc {
+                font-size: 0.85em;
+                color: #666;
+            }
+
+            .results-section {
+                margin-top: 30px;
+            }
+
+            .results-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                gap: 20px;
+            }
+
+            .result-card {
+                background: white;
+                border-radius: 15px;
+                padding: 25px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                transition: transform 0.3s;
+            }
+
+            .result-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            }
+
+            .result-badge {
+                display: inline-block;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 8px 15px;
+                border-radius: 20px;
+                font-size: 0.85em;
+                font-weight: 600;
+                margin-bottom: 15px;
+            }
+
+            .tabs {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #e0e0e0;
+            }
+
+            .tab {
+                padding: 12px 20px;
+                background: none;
+                border: none;
+                border-bottom: 3px solid transparent;
+                cursor: pointer;
+                font-weight: 600;
+                color: #666;
+                transition: all 0.3s;
+            }
+
+            .tab.active {
+                color: #667eea;
+                border-bottom-color: #667eea;
+            }
+
+            .tab-content {
+                display: none;
+            }
+
+            .tab-content.active {
+                display: block;
+                animation: fadeIn 0.3s;
+            }
+
+            .loader {
+                text-align: center;
+                padding: 20px;
+            }
+
+            .spinner {
+                border: 4px solid #f0f0f0;
+                border-top: 4px solid #667eea;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                animation: spin 1s linear infinite;
+                margin: 0 auto;
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            @keyframes fadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 40px;
+                color: #999;
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                animation: fadeIn 0.3s;
+            }
+
+            .modal.show {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-content {
+                background: white;
+                padding: 40px;
+                border-radius: 15px;
+                max-width: 600px;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            }
+
+            .modal-close {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                background: #f0f0f0;
+                border: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 1.5em;
+            }
+
+            .strength-list {
+                list-style: none;
+                margin-top: 15px;
+            }
+
+            .strength-list li {
+                padding: 10px;
+                background: #f0f9ff;
+                border-left: 3px solid #27ae60;
+                margin-bottom: 8px;
+                border-radius: 5px;
+            }
+
+            .weakness-list li {
+                padding: 10px;
+                background: #fff5f5;
+                border-left: 3px solid #e74c3c;
+                margin-bottom: 8px;
+                border-radius: 5px;
+            }
+
+            @media (max-width: 768px) {
+                .main-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .button-group {
+                    grid-template-columns: 1fr;
+                }
+
+                header h1 {
+                    font-size: 2em;
+                }
+
+                .results-grid {
+                    grid-template-columns: 1fr;
+                }
+
+                .profiles-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>📱 Phone Recommendation AI</h1>
+                <p>Find Your Perfect Phone - Amazon & Flipkart Price Comparison</p>
+            </header>
+
+            <div class="tabs">
+                <button class="tab active" data-tab="search">🔍 Search</button>
+                <button class="tab" data-tab="profiles">👥 Find by Profile</button>
+                <button class="tab" data-tab="analyzer">📊 Compare Specs</button>
+                <button class="tab" data-tab="deals">🎉 Daily Deals</button>
+            </div>
+
+            <!-- SEARCH TAB -->
+            <div id="search" class="tab-content active">
+                <div class="main-grid">
+                    <div class="card">
+                        <h2>🔍 Filter & Search</h2>
+                        
+                        <div class="input-group">
+                            <label>💰 Budget (₹)</label>
+                            <input type="number" id="budget" value="14000" min="5000" step="1000">
+                        </div>
+
+                        <div class="input-group">
+                            <label>🏷️ Brand</label>
+                            <select id="brand">
+                                <option value="">All Brands</option>
+                                <option value="Apple">Apple</option>
+                                <option value="Samsung">Samsung</option>
+                                <option value="OnePlus">OnePlus</option>
+                                <option value="Xiaomi">Xiaomi</option>
+                                <option value="Realme">Realme</option>
+                                <option value="POCO">POCO</option>
+                                <option value="Motorola">Motorola</option>
+                                <option value="Google">Google</option>
+                                <option value="iQOO">iQOO</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>⚡ Minimum RAM (GB)</label>
+                            <input type="number" id="minRam" value="4" min="4" max="12">
+                        </div>
+
+                        <div class="input-group">
+                            <label>📷 Minimum Camera (MP)</label>
+                            <input type="number" id="minCamera" value="0" min="0" max="200">
+                        </div>
+
+                        <div class="input-group">
+                            <label>🔋 Minimum Battery (mAh)</label>
+                            <input type="number" id="minBattery" value="0" min="0" max="6000">
+                        </div>
+
+                        <div class="button-group">
+                            <button class="btn-primary" onclick="searchPhones()">Search Phones</button>
+                            <button class="btn-secondary" onclick="getStats()">📊 Get Stats</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h2>💡 Quick Actions</h2>
+                        <button class="btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="getBestPhone()">
+                            🏆 Find Best Phone in Budget
+                        </button>
+                        <button class="btn-primary" style="width: 100%; margin-bottom: 15px;" onclick="comparePlatforms()">
+                            🏪 Compare Flipkart vs Amazon
+                        </button>
+                        <button class="btn-primary" style="width: 100%;" onclick="getDailyDeals()">
+                            🎉 View Daily Deals
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-section">
+                    <div id="searchResults"></div>
+                </div>
+            </div>
+
+            <!-- PROFILES TAB -->
+            <div id="profiles" class="tab-content">
+                <div class="card">
+                    <h2>👥 Find Phone by User Type</h2>
+                    
+                    <div class="input-group">
+                        <label>💰 Budget (₹)</label>
+                        <input type="number" id="profileBudget" value="14000" min="5000" step="1000">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Select Your Profile</label>
+                        <div id="profilesList" class="profiles-grid"></div>
+                    </div>
+
+                    <div id="profileResults"></div>
+                </div>
+            </div>
+
+            <!-- ANALYZER TAB -->
+            <div id="analyzer" class="tab-content">
+                <div class="card">
+                    <h2>📊 Compare by Categories</h2>
+                    
+                    <div class="input-group">
+                        <label>💰 Budget (₹)</label>
+                        <input type="number" id="analyzerBudget" value="14000" min="5000" step="1000">
+                    </div>
+
+                    <button class="btn-primary" style="width: 100%;" onclick="getCategories()">
+                        📊 Show Category Winners
+                    </button>
+
+                    <div id="analyzerResults" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+
+            <!-- DEALS TAB -->
+            <div id="deals" class="tab-content">
+                <div class="card">
+                    <h2>🎉 Daily Deals & Budget Phones</h2>
+                    <button class="btn-primary" style="width: 100%;" onclick="getDailyDeals()">
+                        Load Daily Deals
+                    </button>
+                    <div id="dealsResults" style="margin-top: 20px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal" class="modal">
+            <div style="position: relative;">
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <div class="modal-content" id="modalContent"></div>
+            </div>
+        </div>
+
+        <script>
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    this.classList.add('active');
+                    document.getElementById(this.dataset.tab).classList.add('active');
+                    
+                    if (this.dataset.tab === 'profiles') {
+                        loadProfiles();
+                    }
+                });
+            });
+
+            // Load profiles on page load
+            loadProfiles();
+
+            // API Calls
+            async function searchPhones() {
+                const budget = document.getElementById('budget').value;
+                const brand = document.getElementById('brand').value;
+                const minRam = document.getElementById('minRam').value;
+                const minCamera = document.getElementById('minCamera').value;
+                const minBattery = document.getElementById('minBattery').value;
+
+                const params = new URLSearchParams({
+                    budget,
+                    ...(brand && { brand }),
+                    ...(minRam && { min_ram: minRam }),
+                    ...(minCamera && { min_camera: minCamera }),
+                    ...(minBattery && { min_battery: minBattery })
+                });
+
+                const response = await fetch(`${API_URL}/search?${params}`);
+                const data = await response.json();
+
+                displayPhones(data.phones, 'searchResults', `Found ${data.count} phones`);
+            }
+
+            async function getBestPhone() {
+                const budget = document.getElementById('budget').value;
+                const response = await fetch(`${API_URL}/phones/best?budget=${budget}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('searchResults').innerHTML = `<div class="empty-state">${data.error}</div>`;
+                } else {
+                    displayPhones([data.phone], 'searchResults', `🏆 Best Phone for ₹${budget} - ${data.match}`);
+                }
+            }
+
+            async function comparePlatforms() {
+                const budget = document.getElementById('budget').value;
+                const response = await fetch(`${API_URL}/phones/compare?budget=${budget}`);
+                const data = await response.json();
+
+                let html = '<div class="main-grid">';
+                Object.keys(data.comparison).forEach(platform => {
+                    const phone = data.comparison[platform].phone;
+                    const score = data.comparison[platform].score;
+                    html += `
+                        <div class="result-card">
+                            <div class="result-badge">${platform}</div>
+                            <div class="phone-name">${phone.name}</div>
+                            <div class="phone-brand">${phone.brand}</div>
+                            <div class="price">₹${phone.price.toLocaleString()}</div>
+                            <div class="rating">⭐ ${phone.rating}/5.0</div>
+                            <div style="margin-top: 10px; color: #667eea; font-weight: bold;">Match: ${(score * 100).toFixed(0)}%</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                document.getElementById('searchResults').innerHTML = html;
+            }
+
+            async function getCategories() {
+                const budget = document.getElementById('analyzerBudget').value;
+                const response = await fetch(`${API_URL}/analyzer/categories?budget=${budget}`);
+                const data = await response.json();
+
+                let html = '<div class="results-grid">';
+                Object.keys(data.categories).forEach(category => {
+                    const phone = data.categories[category];
+                    html += `
+                        <div class="result-card">
+                            <div class="result-badge">${category}</div>
+                            <div class="phone-name">${phone.name}</div>
+                            <div class="phone-brand">${phone.brand}</div>
+                            <div class="price">₹${phone.price.toLocaleString()}</div>
+                            <div class="phone-specs" style="margin-top: 10px; font-size: 0.9em;">
+                                <div><span class="spec-icon">💾</span> ${phone.storage}GB</div>
+                                <div><span class="spec-icon">⚡</span> ${phone.ram}GB</div>
+                                <div><span class="spec-icon">📷</span> ${phone.camera}MP</div>
+                                <div><span class="spec-icon">🔋</span> ${phone.battery}mAh</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                document.getElementById('analyzerResults').innerHTML = html;
+            }
+
+            async function getDailyDeals() {
+                const response = await fetch(`${API_URL}/discounts/deals`);
+                const data = await response.json();
+
+                displayPhones(data.deals, 'dealsResults', `🎉 ${data.count} Amazing Deals!`);
+            }
+
+            async function loadProfiles() {
+                const response = await fetch(`${API_URL}/profiles/list`);
+                const data = await response.json();
+
+                let html = '';
+                data.profiles.forEach(profile => {
+                    html += `
+                        <button class="profile-btn" onclick="recommendProfile('${profile.key}')">
+                            <div class="profile-name">${profile.name}</div>
+                            <div class="profile-desc">${profile.description}</div>
+                        </button>
+                    `;
+                });
+
+                document.getElementById('profilesList').innerHTML = html;
+            }
+
+            async function recommendProfile(profileType) {
+                const budget = document.getElementById('profileBudget').value;
+                const response = await fetch(`${API_URL}/profiles/recommend?profile=${profileType}&budget=${budget}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById('profileResults').innerHTML = `<div class="empty-state">${data.error}</div>`;
+                } else {
+                    const phone = data.phone;
+                    let html = `
+                        <div class="result-card" style="margin-top: 20px;">
+                            <div class="result-badge">${data.profile.name}</div>
+                            <div class="phone-name">${phone.name}</div>
+                            <div class="phone-brand">${phone.brand}</div>
+                            <div class="phone-specs">
+                                <div><span class="spec-icon">💾</span> ${phone.storage}GB Storage</div>
+                                <div><span class="spec-icon">⚡</span> ${phone.ram}GB RAM</div>
+                                <div><span class="spec-icon">📷</span> ${phone.camera}MP Camera</div>
+                                <div><span class="spec-icon">🔋</span> ${phone.battery}mAh Battery</div>
+                            </div>
+                            <div class="price">₹${phone.price.toLocaleString()}</div>
+                            <div class="rating">⭐ ${phone.rating}/5.0</div>
+                            <div style="margin-top: 15px; color: #667eea; font-weight: bold;">Match Score: ${(data.score * 100).toFixed(0)}%</div>
+                        </div>
+                    `;
+
+                    if (data.strengths.length > 0) {
+                        html += '<div style="margin-top: 15px;"><strong>Why this phone:</strong><ul class="strength-list">';
+                        data.strengths.forEach(s => {
+                            html += `<li>${s}</li>`;
+                        });
+                        html += '</ul></div>';
+                    }
+
+                    html += '</div>';
+                    document.getElementById('profileResults').innerHTML = html;
+                }
+            }
+
+            async function getStats() {
+                const response = await fetch(`${API_URL}/stats`);
+                const data = await response.json();
+
+                let html = `
+                    <div class="result-card">
+                        <h2>📊 Platform Statistics</h2>
+                        <div class="phone-specs">
+                            <div><span class="spec-icon">📱</span> Total Phones: <strong>${data.total_phones}</strong></div>
+                            <div><span class="spec-icon">🏪</span> Platforms: <strong>${data.platforms}</strong></div>
+                            <div><span class="spec-icon">🏷️</span> Brands: <strong>${data.brands}</strong></div>
+                            <div><span class="spec-icon">💰</span> Avg Price: <strong>₹${Math.round(data.avg_price).toLocaleString()}</strong></div>
+                        </div>
+                        <div class="phone-specs" style="margin-top: 10px;">
+                            <div><span class="spec-icon">📷</span> Avg Camera: <strong>${Math.round(data.avg_camera)}MP</strong></div>
+                            <div><span class="spec-icon">🔋</span> Avg Battery: <strong>${Math.round(data.avg_battery)}mAh</strong></div>
+                            <div><span class="spec-icon">⚡</span> Avg RAM: <strong>${Math.round(data.avg_ram)}GB</strong></div>
+                            <div><span class="spec-icon">💵</span> Price Range: <strong>₹${data.price_range.min.toLocaleString()} - ₹${data.price_range.max.toLocaleString()}</strong></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('searchResults').innerHTML = html;
+        }
+
+        function displayPhones(phones, elementId, title) {
+            if (!phones || phones.length === 0) {
+                document.getElementById(elementId).innerHTML = '<div class="empty-state">No phones found</div>';
+                return;
+            }
+
+            let html = `<h2 style="margin-bottom: 20px; color: #333;">${title}</h2><div class="results-grid">`;
+
+            phones.forEach(phone => {
+                html += `
+                    <div class="result-card">
+                        <div class="result-badge">${phone.platform}</div>
+                        <div class="phone-name">${phone.name}</div>
+                        <div class="phone-brand">${phone.brand}</div>
+                        <div class="phone-specs">
+                            <div><span class="spec-icon">💾</span> ${phone.storage}GB</div>
+                            <div><span class="spec-icon">⚡</span> ${phone.ram}GB</div>
+                            <div><span class="spec-icon">📷</span> ${phone.camera}MP</div>
+                            <div><span class="spec-icon">🔋</span> ${phone.battery}mAh</div>
+                        </div>
+                        <div class="price">₹${phone.price.toLocaleString()}</div>
+                        <div class="rating">⭐ ${phone.rating}/5.0</div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            document.getElementById(elementId).innerHTML = html;
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+    </script>
+</body>
+</html>`
